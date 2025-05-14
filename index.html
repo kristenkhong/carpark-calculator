@@ -185,6 +185,23 @@
                 width: 100%;
             }
         }
+
+        .source-link {
+            margin-top: 16px;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+
+        .source-link a {
+            color: var(--text-light);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .source-link a:hover {
+            color: var(--primary);
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -214,18 +231,23 @@
                     <th>Rate</th>
                 </tr>
                 <tr>
-                    <td>First 3 Hours</td>
+                    <td>First 3 hours</td>
                     <td>RM 2.00</td>
                 </tr>
                 <tr>
-                    <td>3rd - 4th Hour</td>
+                    <td>3rd – 4th Hour </td>
                     <td>RM 1.00</td>
                 </tr>
                 <tr>
-                    <td>Subsequent Hours</td>
+                    <td>Subsequent hours</td>
                     <td>RM 2.50/hour</td>
                 </tr>
             </table>
+            <div class="source-link">
+                <a href="https://www.midvalley.com.my/locate/by-car/" target="_blank" rel="noopener noreferrer">
+                    Source: Midvalley Megamall Car Park Rates
+                </a>
+            </div>
         </div>
     </div>
 
@@ -250,58 +272,33 @@
 
             // Current Fee calculation
             let fee = 0;
-            if (hours <= 3) {
-                fee = 2; // First 3 Hours
+            if (hours < 3) {
+                fee = 2; // Less than 3 hours
+            } else if (hours <= 3) {
+                fee = 3; // Equal to 3 hours
             } else if (hours <= 4) {
-                fee = 2 + 1; // 3rd - 4th Hour
+                fee = 5.50; // 4th hour
             } else {
-                fee = 2 + 1 + (hours - 4) * 2.5; // Subsequent Hours
+                fee = 5.50 + (hours - 4) * 2.5; // Subsequent Hours
             }
 
             // Next Fee logic based on fee increase milestones
             if (forNext && !parkingEnded) {
                 if (hours < 3) {
-                    nextHours = 3; // Next fee increase at 3 hours (RM 2.00)
+                    nextHours = 3; // Next fee increase at 3 hours
                     const nextThreeHourMs = start.getTime() + (3 * 60 * 60 * 1000);
                     nextTime = new Date(nextThreeHourMs);
-                } else if (hours < 4) {
-                    nextHours = 4; // Next fee increase at 4 hours (RM 3.00)
+                    nextFee = 3.00; // RM 3.00 at 3 hours
+                } else if (hours <= 3) {
+                    nextHours = 4; // Next fee increase at 4 hours
                     const nextFourHourMs = start.getTime() + (4 * 60 * 60 * 1000);
                     nextTime = new Date(nextFourHourMs);
+                    nextFee = 5.50; // RM 5.50 at 4 hours
                 } else {
-                    nextHours = hours + 1; // Subsequent hours, fee increases by RM 2.50 each hour
+                    nextHours = hours + 1; // Subsequent hours
                     const nextHourMs = start.getTime() + ((hours + 1) * 60 * 60 * 1000);
                     nextTime = new Date(nextHourMs);
-                }
-
-                // Calculate initial nextFee
-                let nextFee = 0;
-                if (nextHours <= 3) {
-                    nextFee = 2; // First 3 Hours
-                } else if (nextHours <= 4) {
-                    nextFee = 2 + 1; // 3rd - 4th Hour
-                } else {
-                    nextFee = 2 + 1 + (nextHours - 4) * 2.5; // Subsequent Hours
-                }
-
-                // If current fee equals next fee, skip to the next increase
-                if (parseFloat(fee) === nextFee) {
-                    if (hours < 3) {
-                        nextHours = 4; // Skip to 4 hours (RM 3.00)
-                        const nextFourHourMs = start.getTime() + (4 * 60 * 60 * 1000);
-                        nextTime = new Date(nextFourHourMs);
-                        nextFee = 3; // RM 3.00
-                    } else if (hours < 4) {
-                        nextHours = 5; // Skip to 5 hours (RM 5.50)
-                        const nextFiveHourMs = start.getTime() + (5 * 60 * 60 * 1000);
-                        nextTime = new Date(nextFiveHourMs);
-                        nextFee = 2 + 1 + (5 - 4) * 2.5; // RM 5.50
-                    } else {
-                        nextHours += 1; // Already hourly, just move to next hour
-                        const nextNextHourMs = start.getTime() + (nextHours * 60 * 60 * 1000);
-                        nextTime = new Date(nextNextHourMs);
-                        nextFee = 2 + 1 + (nextHours - 4) * 2.5;
-                    }
+                    nextFee = 5.50 + (nextHours - 4) * 2.5;
                 }
 
                 return {
